@@ -3,26 +3,24 @@
 #' Substantive effects via simulation
 #' @param m a model.
 #' @param x a population within which to simulate effects. Default \code{model.frame(m)} (the original population).
-#' @param Z a named ist of two or more contrasting values for each variable. Default \code{pick(m)}.
+#' @param Z a named ist of two or more contrasting values for each variable. Default \code{bestz(m, x)}.
 #' @param f a function for boiling down results. This is a function, not a string. Default \code{value}.
 #' @param y values of the outcome representing success under \code{f}. Default \code{0}.
 #' @param n number of simulated response vectors to generate for each level for each test. Default \code{1000}.
+#' @param parallel logical. Passed on to \code{\link[plyr]{ddply}} at the outermost (term and level) levels.
+#' @param w weights with respect to which to take averages. Default \code{\link{getweights}(m, x)}.
 #' @param ... other arguments to functions used within.
-#' @return a \code{sumer} object (a tidy summary, with model metadata as an attribute). (Well, eventually.)
+#' @return a tall \code{data.frame} with class \code{gilez} to pass to \code{\link{gdiff}} or \code{\link[wickr]{sumer}}.
 #' @export
-gilez <- function(m, x=stats::model.frame(m), Z=pick(m), f=value, y=0, n=1000, ...) {
-  x <- stats::model.frame(m, x)
-
-  ## TODO: what if we just want to simulate coefficients, not results? or (gasp) expected values?
-  ## well, OK, expected values is just a boiler or similar  ## no it's not
-  Y <- plyr::ddply(Z, c("term", "level"), imagine, m=m, x=x, f=f, y=y, n=n)
+gilez <- function(m, x=stats::model.frame(m), Z=bestz(m, x), f=value, y=0, n=1000, parallel=FALSE, w=getweights(m, x), ...) {
+  Y <- plyr::ddply(Z, c("term", "level"), imagine, m=m, x=x, f=f, y=y, n=n, .parallel=parallel, w=w)
 
   Y[, -ncol(Y)] <- lapply(Y[, -ncol(Y)], as.character)
   colnames(Y)[ncol(Y)] <- "value" # TODO: make not inelegant
 
   class(Y) <- c("gilez", class(Y))
 
-  attributes(W)$sumer <- attr(wickr::sumer(m), "sumer")
+  attributes(Y)$sumer <- attr(wickr::sumer(m), "sumer")
 
   Y
 }
@@ -50,19 +48,4 @@ gdiff <- function(Y) {
   attributes(W)$sumer <- attr(Y, "sumer")
 
   W
-}
-
-#' Functional stub for smart contrasting-value function
-#' @param m a model
-#' @return for now, a list of numeric vectors, each with value \code{c(0, 1)}, one for each predictor in the model
-#' @export
-pick <- function(m) {
-  foo <- attr(stats::terms(m), "term.labels")
-
-  names(foo) <- foo
-
-  # TODO: c(0, 1) here to be replaced with sensible function
-  bar <- plyr::ldply(foo, function(x) {c(0, 1)}, .id="term")
-
-  reshape2::melt(bar, value.name="level")[, c("term", "level")]
 }

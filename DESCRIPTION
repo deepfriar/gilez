@@ -15,4 +15,8 @@ Imports:
     plyr,
     reshape2,
     stats,
+    stringr,
     wickr
+Suggests:
+    svymnlogit,
+    survey

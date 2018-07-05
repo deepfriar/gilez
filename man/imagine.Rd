@@ -4,10 +4,10 @@
 \alias{imagine}
 \title{Combine draw, getweights, and boil}
 \usage{
-imagine(z, m, x, f, y, n)
+imagine(z, m, x, f, y, n, w)
 }
 \arguments{
-\item{z}{a row of a data.frame given by \code{pick}.}
+\item{z}{a (conceptual) row of a data.frame given by \code{pick}.}
 
 \item{m}{a model.}
 
@@ -18,6 +18,8 @@ imagine(z, m, x, f, y, n)
 \item{y}{values of the dependent variable representing success under \code{f}.}
 
 \item{n}{number of response vectors to simulate.}
+
+\item{w}{weights with respect to which to take averages.}
 }
 \value{
 a \code{data.frame} of simulated outcome summary statistics.

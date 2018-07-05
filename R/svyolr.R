@@ -1,6 +1,8 @@
 #' @describeIn draw the \code{x} argument may not be omitted
 #' @export
 draw.svyolr <- function(m, x, n=1, ...) {
+  if(!requireNamespace("survey")) {stop("You must install the survey package.")}
+
   L <- m$method
   f <- if(L=="probit") {stats::pnorm} else if(L=="cauchit") {stats::pcauchy} else {stats::plogis} # !&#@ cloglog
 
@@ -14,10 +16,10 @@ draw.svyolr <- function(m, x, n=1, ...) {
 
   Q <- intersect(colnames(X), names(b))
 
-  M <- X[, Q] %*% t(B[, Q])
+  M <- as.matrix(X[, Q]) %*% t(B[, Q, drop=FALSE]) # why did this not fail... until now?!
 
   z <- sort(b[setdiff(names(b), Q)]) # sort() here is defensive programming. I don't know if it will ever matter
-  Z <- B[, names(z)]
+  Z <- B[, names(z), drop=FALSE]
 
   Z <- reshape2::melt(Z, varnames=c("sim", "level"), value.name="thresh")
   M <- reshape2::melt(M, varnames=c("id",  "sim"),   value.name="mean")
@@ -34,9 +36,11 @@ draw.svyolr <- function(m, x, n=1, ...) {
   S$Y <- as.numeric(factor(S$Y, levels=m$lev))
 
   W <- reshape2::dcast(S, id ~ sim, value.var = "Y")
+
+  W
 }
 
 #' @describeIn getweights svyolr
-#' @param x the population.
+#' @inheritParams getweights.glm
 #' @export
 getweights.svyolr <- function(m, x, ...) {stats::model.frame(m, x)$`(weights)`}

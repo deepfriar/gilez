@@ -10,7 +10,7 @@ gdiff(Y)
 \item{Y}{a \code{\link{gilez}} object}
 }
 \value{
-another \code{gilez} object but with more columns
+another \code{gilez} object but with more colummzz!!!1
 }
 \description{
 Contrast effects for different levels with each other

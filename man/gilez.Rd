@@ -4,15 +4,15 @@
 \alias{gilez}
 \title{Substantive effects via simulation}
 \usage{
-gilez(m, x = stats::model.frame(m), Z = pick(m), f = value, y = 0,
-  n = 1000, ...)
+gilez(m, x = stats::model.frame(m), Z = bestz(m, x), f = value, y = 0,
+  n = 1000, parallel = FALSE, w = getweights(m, x), ...)
 }
 \arguments{
 \item{m}{a model.}
 
 \item{x}{a population within which to simulate effects. Default \code{model.frame(m)} (the original population).}
 
-\item{Z}{a named ist of two or more contrasting values for each variable. Default \code{pick(m)}.}
+\item{Z}{a named ist of two or more contrasting values for each variable. Default \code{bestz(m, x)}.}
 
 \item{f}{a function for boiling down results. This is a function, not a string. Default \code{value}.}
 
@@ -20,10 +20,14 @@ gilez(m, x = stats::model.frame(m), Z = pick(m), f = value, y = 0,
 
 \item{n}{number of simulated response vectors to generate for each level for each test. Default \code{1000}.}
 
+\item{parallel}{logical. Passed on to \code{\link[plyr]{ddply}} at the outermost (term and level) levels.}
+
+\item{w}{weights with respect to which to take averages. Default \code{\link{getweights}(m, x)}.}
+
 \item{...}{other arguments to functions used within.}
 }
 \value{
-a \code{sumer} object (a tidy summary, with model metadata as an attribute). (Well, eventually.)
+a tall \code{data.frame} with class \code{gilez} to pass to \code{\link{gdiff}} or \code{\link[wickr]{sumer}}.
 }
 \description{
 Substantive effects via simulation
