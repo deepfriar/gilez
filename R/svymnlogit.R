@@ -1,6 +1,6 @@
 #' @describeIn draw svymnlogit
 #' @export
-draw.svymnlogit <- function(m, x=stats::model.frame(m), n=1, ...) {
+draw.svymnlogit <- function(m, x=stats::model.frame(m), B, ...) {
   if(!requireNamespace("svymnlogit")) {stop("You must install the svymnlogit package.")}
 
   f <- stats::formula(m)
@@ -9,14 +9,10 @@ draw.svymnlogit <- function(m, x=stats::model.frame(m), n=1, ...) {
   y <- all.vars(stats::formula(m))[1]
   Y <- ifelse(is.factor(x[[y]]), levels, unique)(x[[y]]) # dude
 
-  b <- stats::coef(m)
-  V <- stats::vcov(m)
-
-  B <- mvtnorm::rmvt(n, V, stats::df.residual(m), as.numeric(b))
-  colnames(B) <- rep(rownames(b), ncol(b))
+  bnames <- attr(B, "bnames")
 
   # inelegant use of anonymous function but we'll go with it for now
-  B <- plyr::llply(plyr::llply(rownames(b), stringr::str_detect, string=colnames(B)), function(u, B) {B[, u]}, B = B)
+  B <- plyr::llply(plyr::llply(bnames, stringr::str_detect, string=colnames(B)), function(u, B) {B[, u]}, B = B)
 
   M <- plyr::llply(B, function(u) {as.matrix(X) %*% t(u)})
 
@@ -29,7 +25,7 @@ draw.svymnlogit <- function(m, x=stats::model.frame(m), n=1, ...) {
 
   M <- reshape2::dcast(M, id + sim ~ outcome)
 
-  M[[setdiff(Y, rownames(b))]] <- 1
+  M[[setdiff(Y, bnames)]] <- 1
 
   M$Y <- apply(M[, Y], 1, sample, x=Y, size=1, replace=FALSE)
   M$Y <- factor(M$Y, levels=Y)
@@ -37,6 +33,18 @@ draw.svymnlogit <- function(m, x=stats::model.frame(m), n=1, ...) {
   W <- reshape2::dcast(M, id ~ sim, value.var = "Y")
 
   W
+}
+
+#' @describeIn consider svymnlogit
+#' @export
+consider.svymnlogit <- function(m, x, n=1, ...) {
+  b <- stats::coef(m)
+  V <- stats::vcov(m)
+
+  B <- mvtnorm::rmvt(n, V, stats::df.residual(m), as.numeric(b))
+  B <- `colnames<-`(B, rep(rownames(b), ncol(b)))
+
+  `attr<-`(B, "bnames", rownames(b)) # need to pass this along
 }
 
 #' @describeIn getweights svymnlogit

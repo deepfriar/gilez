@@ -4,8 +4,9 @@
 \alias{gilez}
 \title{Substantive effects via simulation}
 \usage{
-gilez(m, x = stats::model.frame(m), Z = bestz(m, x), f = value, y = 0,
-  n = 1000, parallel = FALSE, w = getweights(m, x), ...)
+gilez(m, x = stats::model.frame(m), Z = bestz(m, x), f = value,
+  y = 0, n = 1000, parallel = FALSE, w = getweights(m, x),
+  g = stats::weighted.mean, ...)
 }
 \arguments{
 \item{m}{a model.}
@@ -23,6 +24,8 @@ gilez(m, x = stats::model.frame(m), Z = bestz(m, x), f = value, y = 0,
 \item{parallel}{logical. Passed on to \code{\link[plyr]{ddply}} at the outermost (term and level) levels.}
 
 \item{w}{weights with respect to which to take averages. Default \code{\link{getweights}(m, x)}.}
+
+\item{g}{function. the desired one-number summary of the boiled values. Default \code{stats::\link[stats]{weighted.mean}}.}
 
 \item{...}{other arguments to functions used within.}
 }

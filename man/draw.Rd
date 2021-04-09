@@ -10,24 +10,24 @@
 \alias{draw.svyolr}
 \title{Draw \code{n} response vectors from a fitted model for a population}
 \usage{
-\method{draw}{betareg}(m, x = stats::model.frame(m), n = 1, ...)
+\method{draw}{betareg}(m, x = stats::model.frame(m), B, ...)
 
-\method{draw}{crch}(m, x = stats::model.frame(m), n = 1, ...)
+\method{draw}{crch}(m, x = stats::model.frame(m), B, ...)
 
-draw(m, x, n = 1, ...)
+draw(m, x, B, ...)
 
-\method{draw}{glm}(m, x = stats::model.frame(m), n = 1, ...)
+\method{draw}{glm}(m, x = stats::model.frame(m), B, ...)
 
-\method{draw}{svymnlogit}(m, x = stats::model.frame(m), n = 1, ...)
+\method{draw}{svymnlogit}(m, x = stats::model.frame(m), B, ...)
 
-\method{draw}{svyolr}(m, x, n = 1, ...)
+\method{draw}{svyolr}(m, x, B, ...)
 }
 \arguments{
 \item{m}{the model.}
 
 \item{x}{data.frame. The population of interest.}
 
-\item{n}{numeric. Number of vectors to draw. Default \code{1}.}
+\item{B}{matrix. A set of plausible coefficient vectors generated via \code{\link{consider}}.}
 
 \item{...}{other arguments to \code{weights} or to methods.}
 }

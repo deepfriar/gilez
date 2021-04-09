@@ -4,12 +4,15 @@
 \alias{boil}
 \title{Take the weighted mean of a function of a vector}
 \usage{
-boil(x, f = value, w = rep(1, length(x)), ...)
+boil(x, f = value, g = stats::weighted.mean, w = rep(1, length(x)),
+  ...)
 }
 \arguments{
 \item{x}{the input.}
 
 \item{f}{a \code{function}, typically to convert \code{x} to \code{logical}. Default \code{\link{value}} (atypical).}
+
+\item{g}{a \code{function} to summarize the output. Default \code{\link[stats]{weighted.mean}}.}
 
 \item{w}{weights. Default \code{1}.}
 

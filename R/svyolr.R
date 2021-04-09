@@ -1,22 +1,23 @@
 #' @describeIn draw the \code{x} argument may not be omitted
 #' @export
-draw.svyolr <- function(m, x, n=1, ...) {
+draw.svyolr <- function(m, x, B, ...) {
   if(!requireNamespace("survey")) {stop("You must install the survey package.")}
 
+  # TODO: for version 0.2 figure out whether there is a glm link in here to exploit
   L <- m$method
   f <- if(L=="probit") {stats::pnorm} else if(L=="cauchit") {stats::pcauchy} else {stats::plogis} # !&#@ cloglog
 
   X <- stats::model.matrix(m, x)
 
-  b <- stats::coef(m)
-  V <- stats::vcov(m)
+  # b <- stats::coef(m)
+  # V <- stats::vcov(m)
 
-  B <- mvtnorm::rmvt(n, V, stats::df.residual(m), b)
-  colnames(B) <- names(b)
+  # B <- mvtnorm::rmvt(n, V, stats::df.residual(m), b)
+  # colnames(B) <- names(b)
 
-  Q <- intersect(colnames(X), names(b))
+  Q <- intersect(colnames(X), colnames(B))
 
-  M <- as.matrix(X[, Q]) %*% t(B[, Q, drop=FALSE]) # why did this not fail... until now?!
+  M <- as.matrix(X[, Q, drop=FALSE]) %*% t(B[, Q, drop=FALSE]) # why did this not fail... until now?!
 
   z <- sort(b[setdiff(names(b), Q)]) # sort() here is defensive programming. I don't know if it will ever matter
   Z <- B[, names(z), drop=FALSE]

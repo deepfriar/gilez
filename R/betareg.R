@@ -1,29 +1,27 @@
 #' @describeIn draw betareg
 #' @export
-draw.betareg <- function(m, x=stats::model.frame(m), n=1, ...) {
-  L <- m$link$mean$name
-  f <- if(L=="probit") {stats::pnorm} else if(L=="cauchit") {stats::pcauchy} else {stats::plogis} # !&#@ cloglog
-
-  K <- m$link$precision$name
-  g <- if(K=="sqrt") {sqrt} else if(K=="log") {log} else {function(x) {x}}
+draw.betareg <- function(m, x=stats::model.frame(m), B, ...) {
+  f <- m$link$mean$linkinv
+  g <- m$link$precision$linkinv
 
   X <- stats::model.matrix(stats::terms(m, "mean"),      x)
   Z <- stats::model.matrix(stats::terms(m, "precision"), x)
 
   colnames(Z) <- paste0("(phi)_", colnames(Z))
 
-  b <- stats::coef(m)
-  V <- stats::vcov(m)
+  # version 0.2: B is now an argument
+  # b <- stats::coef(m)
+  # V <- stats::vcov(m)
 
-  B <- mvtnorm::rmvt(n, V, stats::df.residual(m), b)
-  colnames(B) <- names(b)
+  # B <- mvtnorm::rmvt(n, V, stats::df.residual(m), b)
+  # colnames(B) <- names(b)
 
-  Q <- intersect(colnames(X), names(b))
-  M <- as.matrix(X[, Q]) %*% t(B[, Q])
+  Q <- intersect(colnames(X), colnames(B))
+  M <- as.matrix(X[, Q, drop=FALSE]) %*% t(B[, Q, drop=FALSE])
   M <- reshape2::melt(M, varnames=c("id",  "sim"), value.name="mean")
 
-  R <- intersect(colnames(Z), names(b))
-  P <- as.matrix(Z[, R]) %*% t(B[, R])
+  R <- intersect(colnames(Z), colnames(B))
+  P <- as.matrix(Z[, R, drop=FALSE]) %*% t(B[, R, drop=FALSE])
   P <- reshape2::melt(P, varnames=c("id",  "sim"), value.name="precision")
 
   M$phi   <- g(P$precision)    # this feels unsafe but surely it is faster than a join

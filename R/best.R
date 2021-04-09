@@ -9,6 +9,8 @@
 bestz <- function(m, x) {
   labs <- attr(termz(m), "term.labels")
 
+  labs <- intersect(labs, colnames(x))
+
   names(labs) <- labs # needed?
 
   plyr::ldply(x[, labs, drop=FALSE], pick, .id="term")
